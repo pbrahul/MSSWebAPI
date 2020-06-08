@@ -1,0 +1,45 @@
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Caching.Distributed;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace MSSWebAPI.Policy
+{
+    public class TokenPolicyHandler : AuthorizationHandler<TokenPolicy>
+    {
+        private readonly IDistributedCache _cache;
+
+        public TokenPolicyHandler(IDistributedCache cache)
+        {
+            _cache = cache;
+        }
+
+        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, TokenPolicy requirement)
+        {
+
+            var userId = context.User.Claims.FirstOrDefault(x => x.Type == "userid")?.Value;
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException();
+            }
+
+            var accessTokenKey = userId + "_acesstoken";
+            var cacheToken = _cache.GetString(accessTokenKey);
+
+            if (cacheToken == null)
+            {
+                throw new UnauthorizedAccessException();
+            }
+            else
+            {
+                context.Succeed(requirement);
+            }
+
+            return Task.CompletedTask;
+
+        }
+
+    }
+}
