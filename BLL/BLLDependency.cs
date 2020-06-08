@@ -15,7 +15,7 @@ namespace BLL
             services.AddStackExchangeRedisCache(options =>
             {
                 options.Configuration = "localhost";
-                options.InstanceName = "PracticeAPIDB";
+                options.InstanceName = "MSSWebAPIDB";
             });
 
             //services.AddTransient<IDepartmentService, DepartmentService>();
